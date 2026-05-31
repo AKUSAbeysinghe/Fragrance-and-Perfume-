@@ -1,84 +1,72 @@
 import React from 'react';
-import Mains from '../assets/Mains/Banner.png';
+import MainBanner from "../assets/Mains/ZARA parfums💚🧡.jpg";
 
-const HeroSection = () => {
-  const whatsappNumber = "919876543210"; // ← Change to your actual WhatsApp number
-
-  const openWhatsApp = (message = "") => {
-    const encodedMessage = encodeURIComponent(message);
-    const url = encodedMessage 
-      ? `https://wa.me/${whatsappNumber}?text=${encodedMessage}` 
-      : `https://wa.me/${whatsappNumber}`;
-    window.open(url, '_blank');
-  };
-
+export default function HeroSection() {
   return (
-    <section className="relative min-h-screen bg-[#FCFAF7] px-8 py-20 overflow-hidden">
+    <div
+      className="relative w-full h-screen bg-cover bg-center flex flex-col justify-between px-6 py-12 md:px-16 lg:px-24 text-[#e5d5be] selection:bg-[#c9a063] selection:text-black"
+      style={{
+        backgroundImage: `
+          linear-gradient(
+            to right,
+            rgba(10, 9, 8, 0.9) 20%,
+            rgba(10, 9, 8, 0.4) 60%,
+            rgba(10, 9, 8, 0.8) 100%
+          ),
+          url(${MainBanner})
+        `,
+      }}
+    >
+      {/* Top Tagline */}
+      <div className="text-[10px] md:text-xs font-light tracking-[0.3em] text-[#bda073] uppercase mt-4">
+        MAISON D'OR • EST. 1887
+      </div>
 
-      {/* Blurred Background Image */}
-      <div
-        className="absolute inset-0 bg-center bg-cover opacity-40 blur-xl scale-110"
-        style={{
-          backgroundImage: `url(${Mains})`,
-        }}
-      />
-
-      {/* Content */}
-      <div className="relative max-w-3xl mx-auto text-center">
-
-        {/* Badge */}
-        <div className="inline-flex items-center gap-2 px-3 py-1 mb-6 border border-gray-200 rounded-full text-sm text-gray-700 bg-white shadow-sm">
-          <span>✨</span>
-          <span>Your wellness, simplified</span>
-        </div>
-
-        {/* Heading */}
-        <h1 className="text-6xl font-semibold text-gray-900 leading-tight mb-6">
-          Health & wellness, <br />
-          <span className="text-[#2E7D56]">
-            all in one place.
+      {/* Main Content Area */}
+      <div className="max-w-2xl my-auto space-y-6 md:space-y-8">
+        
+        {/* Editorial Headline */}
+        <h1 className="font-serif text-5xl md:text-7xl lg:text-8xl font-light leading-[1.1] tracking-tight text-[#f4e0a5]">
+          The art <br />
+          <span className="font-normal">of </span>
+          <span className="italic font-serif text-[#c9a063]">
+            scent.
           </span>
         </h1>
 
-        {/* Subtext */}
-        <p className="text-lg text-gray-600 mb-10 max-w-xl mx-auto">
-          From trusted pharmacies and premium supplements to modern fitness
-          clubs — Vivara connects you with everything you need to feel your best.
+        {/* Supporting Description */}
+        <p className="text-sm md:text-base font-light tracking-wide leading-relaxed text-[#bda073]/80 max-w-md">
+          Four generations of master perfumers compose rare
+          olfactory architectures from the world's most
+          precious essences.
         </p>
+      </div>
+
+      {/* Bottom Actions */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pt-6 border-t border-[#c9a063]/10">
 
         {/* Buttons */}
-        <div className="flex items-center justify-center gap-4 mb-10">
-          {/* Primary Button */}
-          <button 
-            onClick={() => openWhatsApp("Hi, I'm interested in exploring wellness services.")}
-            className="flex items-center gap-2 px-6 py-3 bg-[#2E7D56] text-white rounded-full font-medium hover:bg-[#256a47] transition-all"
-          >
-            Explore wellness <span>→</span>
+        <div className="flex flex-wrap items-center gap-4 md:gap-8">
+          
+          <button className="border border-[#c9a063]/60 px-6 py-3.5 text-[11px] font-light tracking-[0.25em] text-[#c9a063] hover:bg-[#c9a063] hover:text-black hover:border-[#c9a063] transition-all duration-500 ease-in-out uppercase">
+            Discover the Collection
           </button>
 
-          {/* Secondary Button */}
-          <button 
-            onClick={() => openWhatsApp("Hi, I'm interested in becoming a partner with Vivara.")}
-            className="px-6 py-3 bg-[#F0EFE9] text-gray-800 rounded-full font-medium hover:bg-[#e4e2da] transition-all"
-          >
-            For partners
+          <button className="text-[11px] font-light tracking-[0.25em] text-[#bda073] hover:text-[#f4e0a5] transition-colors duration-300 uppercase py-2">
+            Our Heritage
           </button>
         </div>
 
-        {/* Trust Indicator */}
-        <div className="flex items-center justify-center gap-3">
-          <div className="flex text-orange-400 text-xl">
-            ★★★★★
-          </div>
-
-          <span className="text-gray-600 font-medium">
-            Trusted by <span className="font-bold">2M+</span> members worldwide
+        {/* Scroll Indicator */}
+        <div className="hidden sm:flex items-center space-x-3 text-[10px] md:text-xs font-light tracking-[0.3em] text-[#bda073]/60 select-none">
+          
+          <span className="uppercase">
+            Scroll to enter
           </span>
+
+          <div className="w-8 h-[1px] bg-[#bda073]/40 animate-pulse"></div>
         </div>
-
       </div>
-    </section>
+    </div>
   );
-};
-
-export default HeroSection;
+}
