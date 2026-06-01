@@ -12,7 +12,7 @@ export default function MaisonSanctuaries() {
       phone: '+33 1 42 60 18 87',
       hours: 'Mon–Sat · 10:00 – 19:00',
       description: 'The original maison since 1923. Home to our historic marble salon and private atelier upstairs.',
-      image: BoutiqueImage,
+      image: null,
     },
     {
       city: 'Grasse',

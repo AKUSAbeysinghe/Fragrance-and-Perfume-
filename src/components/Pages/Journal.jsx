@@ -1,11 +1,13 @@
 import React from 'react';
 import Citrus from "../../assets/Journal/Citrus.jpg";
-import RootPerfume from "../../assets/Journal/RootPerfume.jpg";
+import RootPerfume from "../../assets/Journal/Bergamot.jpg";
+import Ingradients from "../../assets/Journal/Ingradiens.jpg";
+import MainPhoto from "../../assets/Journal/Ings.jpg";
 
 export default function AtelierJournal() {
   const articles = [
     {
-      image: 'https://images.unsplash.com/photo-1597848212624-a19eb35e2651?auto=format&fit=crop&q=80&w=600',
+      image: Ingradients,
       alt: 'Sambac jasmine blossoms',
       tag: 'Field Notes',
       readTime: '8 Min',
@@ -53,7 +55,7 @@ export default function AtelierJournal() {
           {/* Left - Image */}
           <div className="relative group overflow-hidden w-full aspect-[4/3] sm:aspect-[16/10] md:aspect-[4/3]">
             <img
-              src="https://images.unsplash.com/photo-1600611440842-7db00d60fc06?auto=format&fit=crop&q=80&w=800"
+              src={MainPhoto}
               alt="Spices and raw perfume materials"
               className="w-full h-full object-cover brightness-90 transition-transform duration-700 group-hover:scale-105"
             />
