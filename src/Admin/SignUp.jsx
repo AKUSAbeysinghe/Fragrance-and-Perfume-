@@ -21,7 +21,7 @@ const Signup = () => {
     setMessage("");
 
     try {
-      const res = await fetch("http://localhost/pharmacy-project/api/signup.php", {
+      const res = await fetch("http://localhost/perfume_db/api/signup.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),

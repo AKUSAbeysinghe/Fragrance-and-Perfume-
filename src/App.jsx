@@ -10,11 +10,23 @@ import TermsOfService from "./components/Pages/Terms.jsx";
 import FAQ from "./components/Pages/FAQ.jsx";
 
 import Contact from "./components/Pages/Contact.jsx";
-import Collections from "./components/Pages/Collections.jsx";
+// import Collections from "./components/Pages/Collections.jsx";
 
 import Heritage from "./components/Pages/Heritage.jsx";
 import Journal from "./components/Pages/Journal.jsx";
 import Botique from "./components/Pages/Boutiques.jsx";
+
+
+import Womens from "./components/Pages/Womens.jsx";
+import Mens from "./components/Pages/Mens.jsx";
+import Unisex from "./components/Pages/Unisex.jsx";
+import BodySpray from "./components/Pages/BodySpray.jsx";
+import HomeSpray from "./components/Pages/Home Spray.jsx";
+import GiftPerfume  from "./components/Pages/GiftSpray.jsx";
+import TravelPerfume from "./components/Pages/TravalSpray.jsx";
+
+import GiftServices from "./components/Pages/GiftServices.jsx";
+
 
 // ✅ Admin Pages
 import Login from "./Admin/Login.jsx";
@@ -70,16 +82,81 @@ function App() {
           }
         />
 
+        
+
         <Route
-          path="/collections"
+          path="/women-perfumes"
           element={
             <Layout>
-              <Collections />
+              <Womens />
+            </Layout>
+          }
+        />
+        
+
+        <Route
+          path="/men-perfumes"
+          element={
+            <Layout>
+              <Mens />
+            </Layout>
+          }
+        />
+        
+
+
+        <Route
+          path="/unisex-perfumes"
+          element={
+            <Layout>
+              <Unisex />
             </Layout>
           }
         />
 
+
+
+        <Route
+          path="/body-fragrances"
+          element={
+            <Layout>
+              <BodySpray />
+            </Layout>
+          }
+        />
+
+
+
+        <Route
+          path="/home-fragrances"
+          element={
+            <Layout>
+              <HomeSpray />
+            </Layout>
+          }
+        />
         
+
+        
+        <Route
+          path="/gift-sets"
+          element={
+            <Layout>
+              <GiftPerfume />
+            </Layout>
+          }
+        />
+        
+
+        <Route
+          path="/travel-mini-sizes"
+          element={
+            <Layout>
+              <TravelPerfume />
+            </Layout>
+          }
+        />
+
          <Route
           path="/journal"
           element={
@@ -140,6 +217,17 @@ function App() {
           element={
             <Layout>
               <Contact />
+            </Layout>
+          }
+        />
+
+
+
+        <Route
+          path="/giftservices"
+          element={
+            <Layout>
+              <GiftServices />
             </Layout>
           }
         />

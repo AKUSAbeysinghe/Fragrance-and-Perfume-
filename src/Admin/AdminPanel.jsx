@@ -1,79 +1,39 @@
 import React, { useEffect, useState } from "react";
 
 const AdminPanel = () => {
-  const [activeTab, setActiveTab] = useState("products");
+  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [subcategories, setSubcategories] = useState([]);
+  const [filteredSubcategories, setFilteredSubcategories] = useState([]);
+
   const [showForm, setShowForm] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editId, setEditId] = useState(null);
+
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [itemToDelete, setItemToDelete] = useState(null);
-
-  const [categories, setCategories] = useState([]);
-  const [subCategories, setSubCategories] = useState([]);
-  const [products, setProducts] = useState([]);
+  const [previewImage, setPreviewImage] = useState(null);
 
   const [formData, setFormData] = useState({
-    category_id: "",
-    sub_category_id: "",
     name: "",
+    fragrance_type: "",
+    tagline: "",
+    top_notes: "",
+    heart_notes: "",
+    base_notes: "",
     price: "",
-    description: "",
+    size: "100ml",
     image: null,
-    popular: false,
-    stock: 0,
+    image_url: "",
+    sample_available: true,
+    category_id: "",
+    subcategory_id: "",
   });
 
-  const [admin] = useState({
-    name: "Admin",
-    email: "admin@pharmacy.lk",
-    profilePic: "https://i.pravatar.cc/100?img=25",
-  });
-
-  // Fetch Categories
-  const fetchCategories = async () => {
-    try {
-      const res = await fetch("http://localhost/pharmacy-project/api/get_categories.php");
-      const data = await res.json();
-
-      if (data.success && data.data) {
-        setCategories(data.data);
-        if (data.data.length > 0) {
-          const firstCatId = data.data[0].id;
-          setFormData(prev => ({ ...prev, category_id: firstCatId }));
-          fetchSubCategories(firstCatId);
-        }
-      }
-    } catch (err) {
-      setError("Cannot connect to server.");
-    }
-  };
-
-  // Fetch Subcategories
-  const fetchSubCategories = async (categoryId) => {
-    if (!categoryId) return;
-    try {
-      const res = await fetch(
-        `http://localhost/pharmacy-project/api/get_subcategories.php?category_id=${categoryId}`
-      );
-      const data = await res.json();
-      if (data.success) {
-        setSubCategories(data.data || []);
-        if (data.data?.length > 0) {
-          setFormData(prev => ({ ...prev, sub_category_id: data.data[0].id }));
-        }
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  // Fetch Products
+  // ---------------- FETCH DATA ----------------
   const fetchProducts = async () => {
     try {
-      const res = await fetch("http://localhost/pharmacy-project/api/get_products.php");
+      const res = await fetch("http://localhost/perfume_db/api/get_products.php");
       const data = await res.json();
       if (data.success) setProducts(data.data || []);
     } catch (err) {
@@ -81,288 +41,417 @@ const AdminPanel = () => {
     }
   };
 
-  useEffect(() => {
-    fetchCategories();
-    fetchProducts();
-  }, []);
-
-  const handleChange = (e) => {
-    const { name, value, type, checked, files } = e.target;
-
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked
-            : type === "file" ? files[0]
-            : name === "price" || name === "stock" ? Number(value) || 0
-            : value,
-    }));
-
-    if (name === "category_id") {
-      setFormData((prev) => ({ ...prev, sub_category_id: "" }));
-      fetchSubCategories(value);
+  const fetchCategories = async () => {
+    try {
+      const res = await fetch("http://localhost/perfume_db/api/get_categories.php");
+      const data = await res.json();
+      if (data.success) setCategories(data.data || []);
+    } catch (err) {
+      console.error(err);
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setMessage("");
-    setError("");
-    setIsSubmitting(true);
+  const fetchSubcategories = async () => {
+    try {
+      const res = await fetch("http://localhost/perfume_db/api/get_subcategories.php");
+      const data = await res.json();
+      if (data.success) setSubcategories(data.data || []);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
-    if (!formData.name || !formData.price || !formData.category_id || !formData.sub_category_id) {
-      setError("⚠️ Name, Price, Category, and Subcategory are required.");
-      setIsSubmitting(false);
+  useEffect(() => {
+    fetchProducts();
+    fetchCategories();
+    fetchSubcategories();
+  }, []);
+
+  // Filter subcategories when category changes
+  useEffect(() => {
+    if (formData.category_id) {
+      const filtered = subcategories.filter(
+        (sub) => sub.category_id === parseInt(formData.category_id)
+      );
+      setFilteredSubcategories(filtered);
+    } else {
+      setFilteredSubcategories([]);
+    }
+  }, [formData.category_id, subcategories]);
+
+  // ---------------- HANDLE CHANGE ----------------
+  const handleChange = (e) => {
+    const { name, value, type, checked, files } = e.target;
+
+    if (type === "file") {
+      const file = files[0];
+      setFormData((prev) => ({ ...prev, image: file }));
+      setPreviewImage(URL.createObjectURL(file));
       return;
     }
 
-    const formDataToSend = new FormData();
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+  };
+
+  // ---------------- RESET FORM ----------------
+  const resetForm = () => {
+    setFormData({
+      name: "",
+      fragrance_type: "",
+      tagline: "",
+      top_notes: "",
+      heart_notes: "",
+      base_notes: "",
+      price: "",
+      size: "100ml",
+      image: null,
+      image_url: "",
+      sample_available: true,
+      category_id: "",
+      subcategory_id: "",
+    });
+    setPreviewImage(null);
+    setIsEditing(false);
+    setEditId(null);
+    setFilteredSubcategories([]);
+  };
+
+  // ---------------- SUBMIT ----------------
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const form = new FormData();
     Object.keys(formData).forEach((key) => {
-      if (formData[key] !== null && formData[key] !== undefined) {
-        formDataToSend.append(key, formData[key]);
+      if (formData[key] !== null && formData[key] !== "") {
+        form.append(key, formData[key]);
       }
     });
 
-    if (isEditing) formDataToSend.append("id", editId);
+    if (isEditing) form.append("id", editId);
+
+    const url = isEditing
+      ? "http://localhost/perfume_db/api/update_product.php"
+      : "http://localhost/perfume_db/api/add_product.php";
 
     try {
-      const url = isEditing
-        ? "http://localhost/pharmacy-project/api/update_product.php"
-        : "http://localhost/pharmacy-project/api/add_product.php";
+      const res = await fetch(url, { method: "POST", body: form });
+      const data = await res.json();
 
-      const res = await fetch(url, { method: "POST", body: formDataToSend });
-      const result = await res.json();
-
-      if (result.success) {
-        setMessage(isEditing ? "✅ Updated!" : "✅ Product added successfully!");
+      if (data.success) {
+        setMessage(isEditing ? "Product Updated ✨" : "Perfume Added ✨");
         setShowForm(false);
         resetForm();
         fetchProducts();
       } else {
-        setError(result.message || "Failed to save");
+        setError(data.message || "Operation failed");
       }
     } catch (err) {
-      setError("Server error occurred");
-    } finally {
-      setIsSubmitting(false);
+      setError("Server error");
     }
   };
 
-  const resetForm = () => {
+  // ---------------- EDIT ----------------
+  const handleEdit = (p) => {
     setFormData({
-      category_id: categories.length > 0 ? categories[0].id : "",
-      sub_category_id: "",
-      name: "",
-      price: "",
-      description: "",
+      name: p.name || "",
+      fragrance_type: p.fragrance_type || "",
+      tagline: p.tagline || "",
+      top_notes: p.top_notes || "",
+      heart_notes: p.heart_notes || "",
+      base_notes: p.base_notes || "",
+      price: p.price || "",
+      size: p.size || "100ml",
       image: null,
-      popular: false,
-      stock: 0,
+      image_url: p.image_url || "",
+      sample_available: Boolean(p.sample_available),
+      category_id: p.category_id || "",
+      subcategory_id: p.subcategory_id || "",
     });
-    setIsEditing(false);
-    setEditId(null);
-  };
 
-  const handleEdit = (product) => {
-    setFormData({
-      category_id: product.category_id,
-      sub_category_id: product.sub_category_id,
-      name: product.name,
-      price: product.price,
-      description: product.description || "",
-      image: null,
-      popular: Boolean(product.popular),
-      stock: product.stock || 0,
-    });
-    fetchSubCategories(product.category_id);
+    setPreviewImage(
+      p.image_url ? `http://localhost/perfume_db/${p.image_url}` : null
+    );
+
     setIsEditing(true);
-    setEditId(product.id);
+    setEditId(p.id);
     setShowForm(true);
   };
 
-  const confirmDelete = (id) => {
-    setItemToDelete(id);
-    setShowConfirmModal(true);
-  };
+  // ---------------- DELETE ----------------
+  const handleDelete = async (id) => {
+    if (!window.confirm("Delete this perfume?")) return;
 
-  const handleDelete = async () => {
-    if (!itemToDelete) return;
     try {
-      const res = await fetch("http://localhost/pharmacy-project/api/delete_product.php", {
+      await fetch("http://localhost/perfume_db/api/delete_product.php", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: `id=${itemToDelete}`,
+        body: `id=${id}`,
       });
-      const result = await res.json();
-      if (result.success) {
-        setMessage("✅ Deleted!");
-        setProducts(prev => prev.filter(p => p.id !== itemToDelete));
-      }
+      fetchProducts();
     } catch (err) {
-      setError("Delete failed");
-    } finally {
-      setShowConfirmModal(false);
-      setItemToDelete(null);
+      console.error(err);
     }
   };
 
+  // ---------------- UI ----------------
   return (
-    <div className="min-h-screen bg-gray-100 font-sans text-gray-800 p-8">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-8 bg-white rounded-xl shadow p-6">
-        <div className="flex items-center gap-6">
-          <img src={admin.profilePic} alt="admin" className="w-20 h-20 rounded-full border-4 border-emerald-500" />
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">{admin.name}</h1>
-            <p className="text-gray-600">{admin.email}</p>
-            <p className="text-emerald-600 font-semibold">Pharmacy Admin Panel</p>
+    <div className="min-h-screen bg-[#0a0908] text-[#e5d5be] p-10">
+      {/* HEADER */}
+      <div className="mb-10 border-b border-amber-900 pb-6">
+        <h1 className="text-4xl font-serif text-amber-200">Perfume Atelier Admin</h1>
+        <p className="text-sm text-amber-700">Manage luxury fragrance compositions</p>
+      </div>
+
+      <button
+        onClick={() => {
+          resetForm();
+          setShowForm(true);
+        }}
+        className="mb-8 px-6 py-3 border border-amber-600 hover:bg-amber-900 text-amber-300 uppercase text-xs tracking-widest transition"
+      >
+        + Add New Perfume
+      </button>
+
+      {/* PRODUCTS GRID */}
+      <div className="grid md:grid-cols-3 gap-6">
+        {products.map((p) => (
+          <div
+            key={p.id}
+            className="bg-[#0d0a08] border border-amber-900/30 rounded-xl overflow-hidden hover:border-amber-700 transition"
+          >
+            <img
+              src={
+                p.image_url
+                  ? `http://localhost/perfume_db/${p.image_url}`
+                  : "https://via.placeholder.com/500x300/1a140f/8b6f47?text=No+Image"
+              }
+              className="h-52 w-full object-cover"
+              alt={p.name}
+            />
+
+            <div className="p-5 space-y-2">
+              <h2 className="text-xl font-serif text-amber-100">{p.name}</h2>
+              <p className="text-amber-600 text-sm">{p.fragrance_type}</p>
+              <p className="italic text-xs text-amber-400">"{p.tagline}"</p>
+
+              <div className="text-xs text-gray-400 space-y-1">
+                <p>Top: {p.top_notes}</p>
+                <p>Heart: {p.heart_notes}</p>
+                <p>Base: {p.base_notes}</p>
+              </div>
+
+              <div className="flex justify-between items-center pt-3">
+                <span className="text-amber-200 font-medium">
+                  €{p.price} • {p.size}
+                </span>
+                <span className="text-xs text-amber-600">
+                  {p.sample_available ? "✓ Sample" : "No Sample"}
+                </span>
+              </div>
+
+              <div className="flex gap-2 mt-4">
+                <button
+                  onClick={() => handleEdit(p)}
+                  className="flex-1 py-2 text-xs border border-blue-500 text-blue-300 hover:bg-blue-950 transition"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleDelete(p.id)}
+                  className="flex-1 py-2 text-xs border border-red-500 text-red-300 hover:bg-red-950 transition"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
           </div>
-        </div>
+        ))}
       </div>
 
-      {/* Messages */}
-      {message && <div className="mb-6 p-4 bg-green-100 border border-green-400 text-green-800 rounded-xl">{message}</div>}
-      {error && <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-800 rounded-xl">{error}</div>}
-
-      <div className="mb-6">
-        <button
-          onClick={() => { resetForm(); setShowForm(true); }}
-          className="bg-emerald-700 hover:bg-emerald-800 text-white px-8 py-3 rounded-full font-semibold shadow-lg"
-        >
-          + Add New Product
-        </button>
-      </div>
-
-      {/* Products Table */}
-      <div className="bg-white rounded-2xl shadow overflow-hidden">
-        <div className="p-6 border-b">
-          <h2 className="text-2xl font-bold">All Products</h2>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="min-w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="p-4 text-left">Image</th>
-                <th className="p-4 text-left">Product Name</th>
-                <th className="p-4 text-left">Category</th>
-                <th className="p-4 text-left">Subcategory</th>
-                <th className="p-4 text-left">Price</th>
-                <th className="p-4 text-left">Stock</th>
-                <th className="p-4 text-left">Popular</th>
-                <th className="p-4 text-left">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {products.length === 0 ? (
-                <tr><td colSpan="8" className="p-10 text-center text-gray-500">No products yet</td></tr>
-              ) : (
-                products.map((product) => (
-                  <tr key={product.id} className="border-b hover:bg-gray-50">
-                    <td className="p-4">
-                      <img
-                        src={
-                          product.image_url
-                            ? `http://localhost/pharmacy-project/${product.image_url}`
-                            : "https://via.placeholder.com/80x80?text=No+Image"
-                        }
-                        alt={product.name}
-                        className="w-16 h-16 object-cover rounded-lg"
-                        onError={(e) => {
-                          e.target.src = "https://via.placeholder.com/80x80?text=Failed";
-                        }}
-                      />
-                    </td>
-                    <td className="p-4 font-medium">{product.name}</td>
-                    <td className="p-4">{product.category_name || "—"}</td>
-                    <td className="p-4">{product.sub_category_name || "—"}</td>
-                    <td className="p-4 font-semibold text-emerald-700">
-                      Rs. {Number(product.price).toLocaleString("en-LK")}
-                    </td>
-                    <td className="p-4">{product.stock}</td>
-                    <td className="p-4">
-                      {product.popular ? "Yes" : "No"}
-                    </td>
-                    <td className="p-4 space-x-3">
-                      <button onClick={() => handleEdit(product)} className="bg-blue-600 text-white px-5 py-2 rounded-full text-sm hover:bg-blue-700">
-                        Edit
-                      </button>
-                      <button onClick={() => confirmDelete(product.id)} className="bg-red-600 text-white px-5 py-2 rounded-full text-sm hover:bg-red-700">
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Add/Edit Form Modal */}
+      {/* ADD / EDIT FORM */}
       {showForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
-          <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-8">
-            <h3 className="text-2xl font-bold mb-6 text-center">
-              {isEditing ? "Edit Product" : "Add New Product"}
-            </h3>
+        <div className="fixed inset-0 bg-black/90 flex items-center justify-center p-6 z-50">
+          <form
+            onSubmit={handleSubmit}
+            className="bg-[#0d0a08] border border-amber-900 p-8 w-full max-w-2xl rounded-xl max-h-[90vh] overflow-y-auto"
+          >
+            <h2 className="text-3xl font-serif text-amber-200 mb-6">
+              {isEditing ? "Edit Perfume" : "New Fragrance Composition"}
+            </h2>
 
-            {/* Category & Subcategory selects */}
-            <select name="category_id" value={formData.category_id} onChange={handleChange} className="w-full p-3 mb-4 border rounded-xl" required>
-              <option value="">Select Category</option>
-              {categories.map(cat => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
-            </select>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <input
+                name="name"
+                placeholder="Perfume Name *"
+                value={formData.name}
+                onChange={handleChange}
+                required
+                className="p-3 bg-black border border-amber-900 focus:border-amber-600 outline-none"
+              />
 
-            <select name="sub_category_id" value={formData.sub_category_id} onChange={handleChange} className="w-full p-3 mb-4 border rounded-xl" required>
-              <option value="">Select Subcategory</option>
-              {subCategories.map(sub => <option key={sub.id} value={sub.id}>{sub.name}</option>)}
-            </select>
+              <input
+                name="fragrance_type"
+                placeholder="Fragrance Type (e.g. Oriental Woody)"
+                value={formData.fragrance_type}
+                onChange={handleChange}
+                className="p-3 bg-black border border-amber-900 focus:border-amber-600 outline-none"
+              />
+            </div>
 
-            <input type="text" name="name" placeholder="Product Name" value={formData.name} onChange={handleChange} className="w-full p-3 mb-4 border rounded-xl" required />
+            <input
+              name="tagline"
+              placeholder="Tagline / Slogan"
+              value={formData.tagline}
+              onChange={handleChange}
+              className="w-full mt-4 p-3 bg-black border border-amber-900 focus:border-amber-600 outline-none"
+            />
 
-            <div className="grid grid-cols-2 gap-4 mb-4">
+            {/* Notes */}
+            <div className="grid grid-cols-3 gap-3 mt-4">
+              <input
+                name="top_notes"
+                placeholder="Top Notes"
+                value={formData.top_notes}
+                onChange={handleChange}
+                className="p-3 bg-black border border-amber-900 focus:border-amber-600 outline-none"
+              />
+              <input
+                name="heart_notes"
+                placeholder="Heart Notes"
+                value={formData.heart_notes}
+                onChange={handleChange}
+                className="p-3 bg-black border border-amber-900 focus:border-amber-600 outline-none"
+              />
+              <input
+                name="base_notes"
+                placeholder="Base Notes"
+                value={formData.base_notes}
+                onChange={handleChange}
+                className="p-3 bg-black border border-amber-900 focus:border-amber-600 outline-none"
+              />
+            </div>
+
+            {/* Price & Size */}
+            <div className="grid grid-cols-2 gap-4 mt-4">
+              <input
+                name="price"
+                type="number"
+                step="0.01"
+                placeholder="Price (€)"
+                value={formData.price}
+                onChange={handleChange}
+                required
+                className="p-3 bg-black border border-amber-900 focus:border-amber-600 outline-none"
+              />
+              <input
+                name="size"
+                placeholder="Size (e.g. 100ml)"
+                value={formData.size}
+                onChange={handleChange}
+                className="p-3 bg-black border border-amber-900 focus:border-amber-600 outline-none"
+              />
+            </div>
+
+            {/* Category & Subcategory */}
+            <div className="grid grid-cols-2 gap-4 mt-4">
               <div>
-                <label>Price (Rs.)</label>
-                <input type="number" name="price" step="0.01" value={formData.price} onChange={handleChange} className="w-full p-3 border rounded-xl" required />
+                <select
+                  name="category_id"
+                  value={formData.category_id}
+                  onChange={handleChange}
+                  required
+                  className="w-full p-3 bg-black border border-amber-900 focus:border-amber-600 outline-none"
+                >
+                  <option value="">Select Category</option>
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </option>
+                  ))}
+                </select>
               </div>
+
               <div>
-                <label>Stock</label>
-                <input type="number" name="stock" value={formData.stock} onChange={handleChange} className="w-full p-3 border rounded-xl" />
+                <select
+                  name="subcategory_id"
+                  value={formData.subcategory_id}
+                  onChange={handleChange}
+                  required
+                  className="w-full p-3 bg-black border border-amber-900 focus:border-amber-600 outline-none"
+                  disabled={!formData.category_id}
+                >
+                  <option value="">Select Subcategory</option>
+                  {filteredSubcategories.map((sub) => (
+                    <option key={sub.id} value={sub.id}>
+                      {sub.name}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
 
-            <textarea name="description" placeholder="Description" value={formData.description} onChange={handleChange} className="w-full p-3 mb-4 border rounded-xl h-24" />
-
-            <div className="flex items-center gap-2 mb-4">
-              <input type="checkbox" name="popular" checked={formData.popular} onChange={handleChange} />
-              <label>Mark as Popular</label>
+            {/* Image Upload */}
+            <div className="mt-6">
+              <input
+                type="file"
+                name="image"
+                accept="image/*"
+                onChange={handleChange}
+                className="block w-full text-sm text-amber-400 file:mr-4 file:py-2 file:px-4 file:border file:border-amber-700 file:bg-black file:text-amber-300"
+              />
+              {previewImage && (
+                <img
+                  src={previewImage}
+                  alt="Preview"
+                  className="mt-4 h-40 object-cover rounded border border-amber-900"
+                />
+              )}
             </div>
 
-            <div className="mb-6">
-              <label className="block mb-2">Product Image</label>
-              <input type="file" name="image" accept="image/*" onChange={handleChange} className="w-full" />
-            </div>
+            <label className="flex items-center gap-2 mt-6 text-amber-300">
+              <input
+                type="checkbox"
+                name="sample_available"
+                checked={formData.sample_available}
+                onChange={handleChange}
+              />
+              Sample Available
+            </label>
 
-            <div className="flex justify-end gap-4">
-              <button type="button" onClick={() => setShowForm(false)} className="px-6 py-3 bg-gray-200 rounded-xl">Cancel</button>
-              <button type="submit" disabled={isSubmitting} className="px-8 py-3 bg-emerald-700 text-white rounded-xl">
-                {isSubmitting ? "Saving..." : isEditing ? "Update" : "Add Product"}
+            <div className="flex justify-end gap-4 mt-8">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowForm(false);
+                  resetForm();
+                }}
+                className="px-6 py-3 border border-amber-800 hover:bg-amber-950"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-8 py-3 bg-amber-800 hover:bg-amber-700 text-amber-100 font-medium transition"
+              >
+                {isEditing ? "Update Perfume" : "Add Perfume"}
               </button>
             </div>
           </form>
         </div>
       )}
 
-      {/* Delete Modal */}
-      {showConfirmModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl p-8 max-w-sm w-full text-center">
-            <h3 className="text-xl font-bold mb-4">Confirm Delete</h3>
-            <p className="mb-6">Are you sure?</p>
-            <div className="flex justify-center gap-4">
-              <button onClick={() => setShowConfirmModal(false)} className="px-6 py-3 bg-gray-200 rounded-xl">Cancel</button>
-              <button onClick={handleDelete} className="px-6 py-3 bg-red-600 text-white rounded-xl">Delete</button>
-            </div>
-          </div>
+      {/* Messages */}
+      {message && (
+        <div className="fixed bottom-6 right-6 bg-green-900 text-green-200 px-6 py-3 rounded border border-green-700">
+          {message}
+        </div>
+      )}
+      {error && (
+        <div className="fixed bottom-6 right-6 bg-red-900 text-red-200 px-6 py-3 rounded border border-red-700">
+          {error}
         </div>
       )}
     </div>

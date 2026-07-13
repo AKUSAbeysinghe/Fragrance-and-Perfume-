@@ -1,26 +1,25 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { Link } from 'react-router-dom';
 
 export default function Footer() {
-  const [email, setEmail] = useState('');
-
-  const handleSubscribe = (e) => {
-    e.preventDefault();
-    // Handle newsletter subscription logic here
-    console.log('Subscribed:', email);
-    setEmail('');
-  };
+  const WHATSAPP_NUMBER = '94771234567';
 
   const exploreLinks = [
-    { name: 'Collections', href: '#' },
-    { name: 'Heritage', href: '#' },
-    { name: 'Journal', href: '#' },
+    { name: 'Collections', href: '/collections' },
+    { name: 'Heritage', href: '/heritage' },
+    { name: 'Journal', href: '/journal' },
   ];
 
   const maisonLinks = [
-    { name: 'Boutiques', href: '#' },
-    { name: 'Private consultations', href: '#' },
-    { name: 'Gift services', href: '#' },
+    { name: 'Boutiques', href: '/boutiques' },
+    { name: 'Private consultations', href: '/contact' },
+    { name: 'Gift services', href: '/giftservices' },
   ];
+
+  const handleWhatsAppClick = () => {
+    const message = "Hello Maison d'Or! I'm visiting your website and would like to know more.";
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, '_blank');
+  };
 
   return (
     <footer className="w-full bg-[#0a0908] text-[#e5d5be] pt-20 pb-10 px-6 md:px-16 lg:px-24 select-none selection:bg-[#c9a063] selection:text-black">
@@ -51,9 +50,9 @@ export default function Footer() {
           <ul className="space-y-3.5 text-xs font-light text-[#bda073]/80">
             {exploreLinks.map((link) => (
               <li key={link.name}>
-                <a href={link.href} className="hover:text-[#f4e0a5] transition-colors duration-300">
+                <Link to={link.href} className="hover:text-[#f4e0a5] transition-colors duration-300">
                   {link.name}
-                </a>
+                </Link>
               </li>
             ))}
           </ul>
@@ -67,52 +66,56 @@ export default function Footer() {
           <ul className="space-y-3.5 text-xs font-light text-[#bda073]/80">
             {maisonLinks.map((link) => (
               <li key={link.name}>
-                <a href={link.href} className="hover:text-[#f4e0a5] transition-colors duration-300">
+                <Link to={link.href} className="hover:text-[#f4e0a5] transition-colors duration-300">
                   {link.name}
-                </a>
+                </Link>
               </li>
             ))}
           </ul>
         </div>
 
-        {/* Column 4: Newsletter Sign-up */}
-        <div className="space-y-5">
+        {/* Column 4: Connect / WhatsApp - Theme Consistent */}
+        <div className="space-y-6">
           <h4 className="text-[10px] font-light tracking-[0.35em] text-[#c9a063] uppercase">
-            Letters
+            Connect With Us
           </h4>
-          <p className="text-xs font-light text-[#bda073]/70 leading-relaxed">
-            Whispers from the atelier, delivered seasonally.
-          </p>
           
-          <form onSubmit={handleSubscribe} className="relative pt-2 w-full max-w-xs group">
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Your email"
-              className="w-full bg-transparent border-b border-[#c9a063]/30 focus:border-[#c9a063] pb-2 text-xs font-light tracking-wide text-[#f4e0a5] placeholder-[#bda073]/40 outline-none transition-colors duration-300 pr-16"
-            />
+          <div className="space-y-5">
             <button
-              type="submit"
-              className="absolute right-0 bottom-2 text-[10px] font-light tracking-[0.25em] text-[#c9a063] hover:text-[#f4e0a5] transition-colors duration-300 uppercase bg-transparent"
+              onClick={handleWhatsAppClick}
+              className="group w-full flex items-center gap-4 border border-[#c9a063]/30 hover:border-[#c9a063] bg-[#0d0b09] hover:bg-[#12100d] p-5 rounded-sm transition-all duration-300"
             >
-              Send
+              <div className="w-9 h-9 rounded-full border border-[#c9a063]/40 flex items-center justify-center flex-shrink-0">
+                <span className="text-[#c9a063] text-xl">✉︎</span>
+              </div>
+              <div className="text-left">
+                <p className="text-[#f4e0a5] font-medium text-sm group-hover:text-white transition-colors">
+                  Message us on WhatsApp
+                </p>
+                <p className="text-xs text-[#bda073]/70">Fast response • +94 77 123 4567</p>
+              </div>
             </button>
-          </form>
+
+            <div className="pt-2 text-xs space-y-2 text-[#bda073]/70">
+              <p className="flex items-center gap-2">
+                <span className="text-[#c9a063]">📍</span> 
+                Paris • Grasse • Dubai
+              </p>
+              <p>
+                <span className="text-[#c9a063]">Email:</span> hello@maisondor.com
+              </p>
+            </div>
+          </div>
         </div>
 
       </div>
 
       {/* Bottom Legalities & Badges Row */}
       <div className="border-t border-[#c9a063]/10 pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-[10px] font-light tracking-[0.2em] text-[#bda073]/50">
-        
-        {/* Copyright info */}
         <div>
           © 2026 Maison d'Or. Composed in France.
         </div>
         
-        {/* Product Badges */}
         <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 uppercase text-[#bda073]/60">
           <span>Eau de Parfum</span>
           <span>•</span>
@@ -120,7 +123,6 @@ export default function Footer() {
           <span>•</span>
           <span>Cruelty Free</span>
         </div>
-
       </div>
 
     </footer>

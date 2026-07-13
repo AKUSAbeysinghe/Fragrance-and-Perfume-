@@ -20,7 +20,7 @@ const Login = () => {
     setMessage("");
 
     try {
-      const res = await fetch("http://localhost/pharmacy-project/api/login.php", {
+      const res = await fetch("http://localhost/perfume_db/api/login.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
